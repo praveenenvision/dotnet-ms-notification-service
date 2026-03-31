@@ -1,9 +1,10 @@
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY nuget.config .
+COPY local-packages/ local-packages/
 COPY src/NotificationService.Domain/NotificationService.Domain.csproj src/NotificationService.Domain/
 COPY src/NotificationService.Application/NotificationService.Application.csproj src/NotificationService.Application/
 COPY src/NotificationService.Infrastructure/NotificationService.Infrastructure.csproj src/NotificationService.Infrastructure/

@@ -12,12 +12,13 @@ namespace NotificationService.Tests.Application;
 public class DomainEventHandlerTests
 {
     private readonly Mock<IEmailService> _emailMock = new();
+    private readonly Mock<INotificationLogRepository> _repoMock = new();
     private readonly Mock<ILogger<DomainEventHandler>> _loggerMock = new();
     private readonly DomainEventHandler _sut;
 
     public DomainEventHandlerTests()
     {
-        _sut = new DomainEventHandler(_emailMock.Object, _loggerMock.Object);
+        _sut = new DomainEventHandler(_emailMock.Object, _repoMock.Object, _loggerMock.Object);
     }
 
     [Fact]

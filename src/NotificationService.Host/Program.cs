@@ -2,10 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.Services;
 using NotificationService.Domain.Interfaces;
-using NotificationService.Infrastructure.Messaging;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Repositories;
 using NotificationService.Infrastructure.Services;
+using DotnetMsPoc.Shared.Messaging;
 using DotnetMsPoc.Shared.Middleware;
 using DotnetMsPoc.Shared.Telemetry;
 
@@ -29,7 +29,15 @@ builder.Services.AddDbContext<NotificationDbContext>(options =>
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IDomainEventHandler, DomainEventHandler>();
 builder.Services.AddScoped<INotificationLogRepository, NotificationLogRepository>();
-builder.Services.AddHostedService<DomainEventConsumer>();
+builder.Services.AddEventConsumer(
+    builder.Configuration,
+    queueName: "notification_events",
+    routingKeys: ["order.placed", "order.modified", "order.cancelled", "order.confirmed", "inventory.reduced"],
+    handler: async (sp, routingKey, jsonBody) =>
+    {
+        var handler = sp.GetRequiredService<IDomainEventHandler>();
+        await handler.HandleEventAsync(routingKey, jsonBody);
+    });
 builder.Services.AddCustomOpenTelemetry("NotificationService");
 
 builder.Services.AddCors(options =>
